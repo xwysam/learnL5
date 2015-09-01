@@ -12,7 +12,7 @@ use Request;
 class ArticleController extends Controller
 {
     public function index(){
-
+        
         $articles = Article::Published()->get();
 
         return view('articles.index',compact(['articles']));
@@ -45,7 +45,11 @@ class ArticleController extends Controller
     //when using Request directly
     public function store(Requests\CreateArticle $request){
 
-        Article::create(Request::all());
+        $article = new Article(Request::all());
+
+        \Auth::user()->articles()->save($article);
+
+//        Article::create(Request::all());
         return redirect('articles');
 
     }
