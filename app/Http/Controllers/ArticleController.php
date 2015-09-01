@@ -11,24 +11,26 @@ use App\Http\Controllers\Controller;
 use Request;
 class ArticleController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth', ['only' => 'create']);
+    }
     public function index(){
-        
+
         $articles = Article::Published()->get();
 
         return view('articles.index',compact(['articles']));
     }
 
-    public function show($id){
-        $article = Article::findorFail($id);
-
-//        dd($article->published_at->diffForHumans());
+    public function show(Article $article){
 
         return view('articles.show',compact(['article']));
     }
 
-    public function create(){
+    public function create(Article $article){
 
-        return view('articles.create');
+        $tags = \App\Tag::lists('name','id');
+        return view('articles.create',compact('tags','article'));
     }
 
     //when using Illuminate/Http\Request
@@ -42,27 +44,34 @@ class ArticleController extends Controller
 //        Article::create($input);
 //        return redirect('articles');
 //    }
+
     //when using Request directly
+    /**
+     * @param Requests\CreateArticle $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
+     */
     public function store(Requests\CreateArticle $request){
 
-        $article = new Article(Request::all());
+        $article = \Auth::user()->articles()->create($request->all());
+        $article->tag()->attach($request->input('tag_list'));
 
-        \Auth::user()->articles()->save($article);
-
-//        Article::create(Request::all());
+        \Session::flash('flash_message','Your article has been created!');
         return redirect('articles');
-
     }
 
-    public function edit($id)
+
+    /**
+     * @param Article $article
+     * @return \Illuminate\View\View
+     */
+    public function edit(Article $article)
     {
-        $article = Article::findorFail($id);
-        return view('articles.edit',compact('article'));
+        $tags = \App\Tag::lists('name');
+        return view('articles.edit',compact('article','tags'));
     }
 
-    public function update($id, Requests\CreateArticle $request){
+    public function update(Article $article, Requests\CreateArticle $request){
 
-        $article = Article::findOrFail($id);
         $article->update($request->all());
         return redirect('articles');
     }

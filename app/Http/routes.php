@@ -17,11 +17,6 @@ Route::get('/', function () {
 Route::get('about','AboutController@about');
 Route::get('contact','contactController@contact');
 Route::resource('articles','ArticleController');
-//Route::get('articles','ArticleController@index');
-//Route::get('articles/create','ArticleController@create');
-//Route::get('articles/{id}','ArticleController@show');
-//Route::post('articles','ArticleController@store');
-
 
 // Authentication routes...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
